@@ -107,7 +107,7 @@ export const UI = ({ hidden, ...props }) => {
           };
           
           // call the endpoint to create the event
-          const response = await fetch("http://localhost:3000/createEvent", {
+          const response = await fetch("https://donnabackend.onrender.com/createEvent", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export const UI = ({ hidden, ...props }) => {
           };
 
           // Call the backend endpoint to send the email
-          const response = await fetch("http://localhost:3000/sendEmail", {
+          const response = await fetch("https://donnabackend.onrender.com/sendEmail", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -181,7 +181,7 @@ export const UI = ({ hidden, ...props }) => {
         {
         try {
           // Call the RAG API
-          const response = await fetch('http://localhost:3000/rag', {
+          const response = await fetch('https://donnabackend.onrender.com/rag', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -283,7 +283,7 @@ const downloadTextFile = (content) => {
       const formData = new FormData();
       formData.append("file", file); // Match the backend's expected field name
 
-      const response = await fetch("http://localhost:3000/transcript", {
+      const response = await fetch("https://donnabackend.onrender.com/transcript", {
         method: "POST",
         body: formData,
       });
