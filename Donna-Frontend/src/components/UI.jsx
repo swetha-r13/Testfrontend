@@ -398,8 +398,8 @@ const downloadTextFile = (content) => {
           <div className="flex justify-center items-center h-full">
             <div className="loader bg-gray-200 p-5 rounded-full flex space-x-3">
               <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
-              <div className="w-4 h-4 bg-green-600 rounded-full animate-bounce"></div>
-              <div className="w-4 h-4 bg-red-600 rounded-full animate-bounce"></div>
+              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
+              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
             </div>
           </div>
         )}
