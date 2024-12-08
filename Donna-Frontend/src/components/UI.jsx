@@ -199,6 +199,7 @@ export const UI = ({ hidden, ...props }) => {
       } else 
       {
         chat(text);
+        console.log(text);
       }
     }
     input.current.value = ""; // Clear the input field
