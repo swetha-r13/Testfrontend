@@ -411,8 +411,6 @@ const downloadTextFile = (content) => {
             </p>
           </div>
         )}
-
-        )}
         
       <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
           {/* Text Input */}
