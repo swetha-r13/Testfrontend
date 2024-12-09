@@ -107,7 +107,7 @@ export const UI = ({ hidden, ...props }) => {
           };
           
           // call the endpoint to create the event
-          const response = await fetch("https://donnabackend.onrender.com/createEvent", {
+          const response = await fetch("http://localhost:3000/createEvent", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export const UI = ({ hidden, ...props }) => {
           };
 
           // Call the backend endpoint to send the email
-          const response = await fetch("https://donnabackend.onrender.com/sendEmail", {
+          const response = await fetch("http://localhost:3000/sendEmail", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -181,7 +181,7 @@ export const UI = ({ hidden, ...props }) => {
         {
         try {
           // Call the RAG API
-          const response = await fetch('https://donnabackend.onrender.com/rag', {
+          const response = await fetch('http://localhost:3000/rag', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -199,7 +199,6 @@ export const UI = ({ hidden, ...props }) => {
       } else 
       {
         chat(text);
-        console.log(text);
       }
     }
     input.current.value = ""; // Clear the input field
@@ -284,7 +283,7 @@ const downloadTextFile = (content) => {
       const formData = new FormData();
       formData.append("file", file); // Match the backend's expected field name
 
-      const response = await fetch("https://donnabackend.onrender.com/transcript", {
+      const response = await fetch("http://localhost:3000/transcript", {
         method: "POST",
         body: formData,
       });
@@ -399,8 +398,8 @@ const downloadTextFile = (content) => {
           <div className="flex justify-center items-center h-full">
             <div className="loader bg-gray-200 p-5 rounded-full flex space-x-3">
               <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
-              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
-              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
+              <div className="w-4 h-4 bg-green-600 rounded-full animate-bounce"></div>
+              <div className="w-4 h-4 bg-red-600 rounded-full animate-bounce"></div>
             </div>
           </div>
         )}
