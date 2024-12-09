@@ -11,7 +11,7 @@ export const UI = ({ hidden, ...props }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [enableFileOptions, setEnableFileOptions] = useState(false);
   const fileInputRef = useRef(null); // Add this in your component's top-level
-  
+
   // // Handle sending a typed message
   // const sendMessage = () => {
   //   const text = input.current.value.trim().toLowerCase(); // Normalize user input
@@ -35,14 +35,14 @@ export const UI = ({ hidden, ...props }) => {
   //     input.current.value = ""; // Clear the input field
   //   }
   // };
-  
-  
+
+
   const sendMessage = async () => {
-    
+
     const text = input.current.value.trim().toLowerCase(); // Normalize user input
     const noteKeywords = ["transcribe", "convert to text"]; // Define note-related keywords
     const kbKeywords = ["knowledge base", "kb"]; // Define knowledge base related keywords
-  
+
     if (!loading && !message) {
 
       if (text.includes("reminder")) {
@@ -105,9 +105,9 @@ export const UI = ({ hidden, ...props }) => {
             end: endTime.toISOString(),
             timeZone: "Eastern Standard Time",
           };
-          
+
           // call the endpoint to create the event
-          const response = await fetch("http://localhost:3000/createEvent", {
+          const response = await fetch("https://donnabackend.onrender.com/createEvent", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export const UI = ({ hidden, ...props }) => {
           };
 
           // Call the backend endpoint to send the email
-          const response = await fetch("http://localhost:3000/sendEmail", {
+          const response = await fetch("https://donnabackend.onrender.com/sendEmail", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -161,34 +161,34 @@ export const UI = ({ hidden, ...props }) => {
           console.error("Error sending email:", error);
         }
       }
-      
+
       // Check if user input contains any note-related keyword
       const containsNoteKeyword = noteKeywords.some((keyword) =>
         text.includes(keyword)
       );
-  
+
       // Check if user input contains any knowledge base related keyword
       const containsKBKeyword = kbKeywords.some((keyword) =>
         text.includes(keyword)
       );
-  
+
       // Update the state based on whether note-related keywords are found
       setEnableFileOptions(containsNoteKeyword);
-  
+
       if (containsNoteKeyword) {
         chat("Please say that upload your files using the Choose file button.");
       } else if (containsKBKeyword) 
         {
         try {
           // Call the RAG API
-          const response = await fetch('http://localhost:3000/rag', {
+          const response = await fetch('https://donnabackend.onrender.com/rag', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({message: input.current.value}),
           });
-         
+
           const data = await response.text();
           console.log(data);
           const test="Please say this content:"+data;
@@ -199,12 +199,13 @@ export const UI = ({ hidden, ...props }) => {
       } else 
       {
         chat(text);
+        console.log(text);
       }
     }
     input.current.value = ""; // Clear the input field
-  
+
   };
-  
+
 let isNoting = false;
 let noteContent = "";
 
@@ -283,7 +284,7 @@ const downloadTextFile = (content) => {
       const formData = new FormData();
       formData.append("file", file); // Match the backend's expected field name
 
-      const response = await fetch("http://localhost:3000/transcript", {
+      const response = await fetch("https://donnabackend.onrender.com/transcript", {
         method: "POST",
         body: formData,
       });
@@ -398,8 +399,8 @@ const downloadTextFile = (content) => {
           <div className="flex justify-center items-center h-full">
             <div className="loader bg-gray-200 p-5 rounded-full flex space-x-3">
               <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
-              <div className="w-4 h-4 bg-green-600 rounded-full animate-bounce"></div>
-              <div className="w-4 h-4 bg-red-600 rounded-full animate-bounce"></div>
+              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
+              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
             </div>
           </div>
         )}
@@ -410,7 +411,7 @@ const downloadTextFile = (content) => {
             </p>
           </div>
         )}
-        
+
         {message && message.text && (
           <div className="w-full flex justify-center mb-4">
             <p className="bg-white bg-opacity-90 p-2 rounded-md shadow-md max-w-sm text-center">
@@ -418,7 +419,7 @@ const downloadTextFile = (content) => {
             </p>
           </div>
         )}
-        
+
         <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
           {/* Text Input */}
           <input
@@ -476,7 +477,7 @@ const downloadTextFile = (content) => {
             className="bg-black hover:bg-gray-100 text-white p-0.5 px-1 rounded-md"
             disabled={!enableFileOptions || isUploading}
           />
-        
+
         {/* Submit Button */}
         <button
             onClick={handleSubmit}
