@@ -63,9 +63,7 @@ export const UI = ({ hidden, ...props }) => {
             const [_, day, , month, , year = new Date().getFullYear()] = dateMatch; // Default to current year if not specified
             startTime = new Date(`${month} ${day}, ${year}`);
             console.log(`Parsed Date: ${startTime}`);
-          } else {
-            console.log("No valid date found in the text.");
-          }
+          } 
           // Extract time from the text
           const timeMatch = text.match(/(\d{1,2})(:\d{2})?\s?(am|pm|AM|PM|a\.m\.|p\.m\.|A\.M\.|P\.M\.)?/);
 
