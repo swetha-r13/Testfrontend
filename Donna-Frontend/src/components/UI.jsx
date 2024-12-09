@@ -405,12 +405,17 @@ const downloadTextFile = (content) => {
           </div>
         )}
         {!loading && message && message.text && (
+
+        )}
+        
+        {message && message.text && (
           <div className="w-full flex justify-center mb-4">
             <p className="bg-white bg-opacity-90 p-2 rounded-md shadow-md max-w-sm text-center">
               {message.text}
             </p>
           </div>
         )}
+        
 
         <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
           {/* Text Input */}
