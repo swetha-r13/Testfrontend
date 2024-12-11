@@ -12,29 +12,29 @@ export const UI = ({ hidden, ...props }) => {
   const [enableFileOptions, setEnableFileOptions] = useState(false);
   const fileInputRef = useRef(null); // Add this in your component's top-level
 
-  // Handle sending a typed message
-  const sendMessage = () => {
-    const text = input.current.value.trim().toLowerCase(); // Normalize user input
-    const noteKeywords = ["transcribe", "convert to text"]; // Define note-related keywords
+  // // Handle sending a typed message
+  // const sendMessage = () => {
+  //   const text = input.current.value.trim().toLowerCase(); // Normalize user input
+  //   const noteKeywords = ["transcribe", "convert to text"]; // Define note-related keywords
 
-    if (!loading && !message) {
-      // Check if user input contains any note-related keyword
-      const containsNoteKeyword = noteKeywords.some((keyword) =>
-        text.includes(keyword)
-      );
+  //   if (!loading && !message) {
+  //     // Check if user input contains any note-related keyword
+  //     const containsNoteKeyword = noteKeywords.some((keyword) =>
+  //       text.includes(keyword)
+  //     );
 
-      // Update the state based on whether note-related keywords are found
-      setEnableFileOptions(containsNoteKeyword);
+  //     // Update the state based on whether note-related keywords are found
+  //     setEnableFileOptions(containsNoteKeyword);
 
-      if (containsNoteKeyword) {
-        chat("Please say that upload your files using the Choose file button.");
-      } else {
-        chat(text);
-      }
+  //     if (containsNoteKeyword) {
+  //       chat("Please say that upload your files using the Choose file button.");
+  //     } else {
+  //       chat(text);
+  //     }
 
-      input.current.value = ""; // Clear the input field
-    }
-  };
+  //     input.current.value = ""; // Clear the input field
+  //   }
+  // };
 
 
   const sendMessage = async () => {
