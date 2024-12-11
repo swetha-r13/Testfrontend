@@ -37,312 +37,312 @@ export const UI = ({ hidden, ...props }) => {
   // };
 
 
-  const sendMessage = async () => {
+  // const sendMessage = async () => {
 
-    const text = input.current.value.trim().toLowerCase(); // Normalize user input
-    const noteKeywords = ["transcribe", "convert to text"]; // Define note-related keywords
-    const kbKeywords = ["knowledge base", "kb"]; // Define knowledge base related keywords
+  //   const text = input.current.value.trim().toLowerCase(); // Normalize user input
+  //   const noteKeywords = ["transcribe", "convert to text"]; // Define note-related keywords
+  //   const kbKeywords = ["knowledge base", "kb"]; // Define knowledge base related keywords
 
-    if (!loading && !message) {
+  //   if (!loading && !message) {
 
-      if (text.includes("reminder")) {
+  //     if (text.includes("reminder")) {
 
-        try {
-          // Use the current date as the base date
-          const currentDate = new Date();
-          let startTime = new Date(currentDate);
+  //       try {
+  //         // Use the current date as the base date
+  //         const currentDate = new Date();
+  //         let startTime = new Date(currentDate);
 
-          // Check if "tomorrow" is mentioned in the text
-          if (text.toLowerCase().includes("tomorrow")) {
-            startTime.setDate(startTime.getDate() + 1); // Move to the next day
-          }
+  //         // Check if "tomorrow" is mentioned in the text
+  //         if (text.toLowerCase().includes("tomorrow")) {
+  //           startTime.setDate(startTime.getDate() + 1); // Move to the next day
+  //         }
 
-          // Check if a specific date is mentioned in the text 
-          const dateMatch = text.match(/(\d{1,2})(?:st|nd|rd|th)?\s(of\s)?(\w{3,9})(,\s(\d{4}))?/);
-          if (dateMatch) {
-            const [_, day, , month, , year = new Date().getFullYear()] = dateMatch; // Default to current year if not specified
-            startTime = new Date(`${month} ${day}, ${year}`);
-            console.log(`Parsed Date: ${startTime}`);
-          } 
-          // Extract time from the text
-          const timeMatch = text.match(/(\d{1,2})(:\d{2})?\s?(am|pm|AM|PM|a\.m\.|p\.m\.|A\.M\.|P\.M\.)?/);
+  //         // Check if a specific date is mentioned in the text 
+  //         const dateMatch = text.match(/(\d{1,2})(?:st|nd|rd|th)?\s(of\s)?(\w{3,9})(,\s(\d{4}))?/);
+  //         if (dateMatch) {
+  //           const [_, day, , month, , year = new Date().getFullYear()] = dateMatch; // Default to current year if not specified
+  //           startTime = new Date(`${month} ${day}, ${year}`);
+  //           console.log(`Parsed Date: ${startTime}`);
+  //         } 
+  //         // Extract time from the text
+  //         const timeMatch = text.match(/(\d{1,2})(:\d{2})?\s?(am|pm|AM|PM|a\.m\.|p\.m\.|A\.M\.|P\.M\.)?/);
 
-          if (!timeMatch) {
-            chat("No valid time found in the text. Please specify a time.");
-            return;
-          }
+  //         if (!timeMatch) {
+  //           chat("No valid time found in the text. Please specify a time.");
+  //           return;
+  //         }
 
-          const [_, hours, minutes = ":00", period] = timeMatch;
-          let parsedHours = parseInt(hours, 10);
-
-
-          // Handle AM/PM correctly
-          if (period) {
-            const normalizedPeriod = period.replace(/\./g, "").toLowerCase(); // Normalize A.M. and P.M. to am/pm
-            if (normalizedPeriod === "pm" && parsedHours < 12) {
-              parsedHours += 12; // Convert PM hours to 24-hour format
-            } else if (normalizedPeriod === "am" && parsedHours === 12) {
-              parsedHours = 0; // Midnight case
-            }
-          }
+  //         const [_, hours, minutes = ":00", period] = timeMatch;
+  //         let parsedHours = parseInt(hours, 10);
 
 
-          // Construct start time
-          startTime.setHours(parsedHours);
-          startTime.setMinutes(parseInt(minutes.slice(1), 10));
-          startTime.setSeconds(0);
+  //         // Handle AM/PM correctly
+  //         if (period) {
+  //           const normalizedPeriod = period.replace(/\./g, "").toLowerCase(); // Normalize A.M. and P.M. to am/pm
+  //           if (normalizedPeriod === "pm" && parsedHours < 12) {
+  //             parsedHours += 12; // Convert PM hours to 24-hour format
+  //           } else if (normalizedPeriod === "am" && parsedHours === 12) {
+  //             parsedHours = 0; // Midnight case
+  //           }
+  //         }
 
-          // Construct end time (15 minutes later)
-          const endTime = new Date(startTime);
-          endTime.setMinutes(startTime.getMinutes() + 15);
 
-          // Prepare event data
-          const eventData = {
-            subject: "Reminder from Donna",
-            start: startTime.toISOString(),
-            end: endTime.toISOString(),
-            timeZone: "Eastern Standard Time",
-          };
+  //         // Construct start time
+  //         startTime.setHours(parsedHours);
+  //         startTime.setMinutes(parseInt(minutes.slice(1), 10));
+  //         startTime.setSeconds(0);
 
-          // call the endpoint to create the event
-          const response = await fetch("https://donnabackend.onrender.com/createEvent", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(eventData),
-          });
+  //         // Construct end time (15 minutes later)
+  //         const endTime = new Date(startTime);
+  //         endTime.setMinutes(startTime.getMinutes() + 15);
 
-          const result = await response.json();
-          if (result.message === "Event created successfully!") {
-            chat("Please say reminder is added.");
-          } else {
-            chat("Please say Sorry, there was an issue setting up the reminder. Please try again.");
-          }
-        } catch (error) {
-          console.error("Error creating event:", error);
-        }
-      } else if (text.includes("send an email")) {
-        try {
-          // searching for the email provided by the user
-          const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
-          if (!emailMatch) {
-            chat("No valid email address found in the text.");
-            return;
-          }
-          const recipientEmail = emailMatch[0];
-          const bodyMatch = text.match(/(?:body|message)\s*[:\s]*(.*)/i);
-          const emailBody = bodyMatch ? bodyMatch[1].trim() : "Email from Donna"; // Default message if no body is found
+  //         // Prepare event data
+  //         const eventData = {
+  //           subject: "Reminder from Donna",
+  //           start: startTime.toISOString(),
+  //           end: endTime.toISOString(),
+  //           timeZone: "Eastern Standard Time",
+  //         };
 
-          // Prepare the email Json request data
-          const emailData = {
-            recipient: recipientEmail,
-            subject: "Email from Donna",
-            body: emailBody,
-          };
+  //         // call the endpoint to create the event
+  //         const response = await fetch("https://donnabackend.onrender.com/createEvent", {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify(eventData),
+  //         });
 
-          // Call the backend endpoint to send the email
-          const response = await fetch("https://donnabackend.onrender.com/sendEmail", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(emailData),
-          });
-          const result = await response.json();
-          if (result.message === "Email sent successfully!") {
-            chat("Please say Email has been sent successfully.");
-          } else {
-            chat("Please say Sorry, there was an issue sending your email. Please try again.");
-          }
-        } catch (error) {
-          console.error("Error sending email:", error);
-        }
-      }
+  //         const result = await response.json();
+  //         if (result.message === "Event created successfully!") {
+  //           chat("Please say reminder is added.");
+  //         } else {
+  //           chat("Please say Sorry, there was an issue setting up the reminder. Please try again.");
+  //         }
+  //       } catch (error) {
+  //         console.error("Error creating event:", error);
+  //       }
+  //     } else if (text.includes("send an email")) {
+  //       try {
+  //         // searching for the email provided by the user
+  //         const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
+  //         if (!emailMatch) {
+  //           chat("No valid email address found in the text.");
+  //           return;
+  //         }
+  //         const recipientEmail = emailMatch[0];
+  //         const bodyMatch = text.match(/(?:body|message)\s*[:\s]*(.*)/i);
+  //         const emailBody = bodyMatch ? bodyMatch[1].trim() : "Email from Donna"; // Default message if no body is found
 
-      // Check if user input contains any note-related keyword
-      const containsNoteKeyword = noteKeywords.some((keyword) =>
-        text.includes(keyword)
-      );
+  //         // Prepare the email Json request data
+  //         const emailData = {
+  //           recipient: recipientEmail,
+  //           subject: "Email from Donna",
+  //           body: emailBody,
+  //         };
 
-      // Check if user input contains any knowledge base related keyword
-      const containsKBKeyword = kbKeywords.some((keyword) =>
-        text.includes(keyword)
-      );
+  //         // Call the backend endpoint to send the email
+  //         const response = await fetch("https://donnabackend.onrender.com/sendEmail", {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify(emailData),
+  //         });
+  //         const result = await response.json();
+  //         if (result.message === "Email sent successfully!") {
+  //           chat("Please say Email has been sent successfully.");
+  //         } else {
+  //           chat("Please say Sorry, there was an issue sending your email. Please try again.");
+  //         }
+  //       } catch (error) {
+  //         console.error("Error sending email:", error);
+  //       }
+  //     }
 
-      // Update the state based on whether note-related keywords are found
-      setEnableFileOptions(containsNoteKeyword);
+  //     // Check if user input contains any note-related keyword
+  //     const containsNoteKeyword = noteKeywords.some((keyword) =>
+  //       text.includes(keyword)
+  //     );
 
-      if (containsNoteKeyword) {
-        chat("Please say that upload your files using the Choose file button.");
-      } else if (containsKBKeyword) 
-        {
-        try {
-          // Call the RAG API
-          const response = await fetch('https://donnabackend.onrender.com/rag', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({message: input.current.value}),
-          });
+  //     // Check if user input contains any knowledge base related keyword
+  //     const containsKBKeyword = kbKeywords.some((keyword) =>
+  //       text.includes(keyword)
+  //     );
 
-          const data = await response.text();
-          console.log(data);
-          const test="Please say this content:"+data;
-          chat(test);
-        } catch (error) {
-          console.error('Error calling RAG API:', error);
-        }
-      } else 
-      {
-        chat(text);
-        console.log(text);
-      }
-    }
-    input.current.value = ""; // Clear the input field
+  //     // Update the state based on whether note-related keywords are found
+  //     setEnableFileOptions(containsNoteKeyword);
 
-  };
+  //     if (containsNoteKeyword) {
+  //       chat("Please say that upload your files using the Choose file button.");
+  //     } else if (containsKBKeyword) 
+  //       {
+  //       try {
+  //         // Call the RAG API
+  //         const response = await fetch('https://donnabackend.onrender.com/rag', {
+  //           method: 'POST',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //           body: JSON.stringify({message: input.current.value}),
+  //         });
+
+  //         const data = await response.text();
+  //         console.log(data);
+  //         const test="Please say this content:"+data;
+  //         chat(test);
+  //       } catch (error) {
+  //         console.error('Error calling RAG API:', error);
+  //       }
+  //     } else 
+  //     {
+  //       chat(text);
+  //       console.log(text);
+  //     }
+  //   }
+  //   input.current.value = ""; // Clear the input field
+
+  // };
 
  
-// const sendMessage = async () => {
-//   const text = input.current.value.trim().toLowerCase(); // Normalize user input
-//   const noteKeywords = ["transcribe", "convert to text"]; // Define note-related keywords
-//   const kbKeywords = ["knowledge base", "kb"]; // Define knowledge base-related keywords
+const sendMessage = async () => {
+  const text = input.current.value.trim().toLowerCase(); // Normalize user input
+  const noteKeywords = ["transcribe", "convert to text"]; // Define note-related keywords
+  const kbKeywords = ["knowledge base", "kb"]; // Define knowledge base-related keywords
 
-//   if (!loading && !message) {
-//     try {
-//       if (text.includes("reminder")) {
-//         const currentDate = new Date();
-//         let startTime = new Date(currentDate);
+  if (!loading && !message) {
+    try {
+      if (text.includes("reminder")) {
+        const currentDate = new Date();
+        let startTime = new Date(currentDate);
 
-//         if (text.includes("tomorrow")) {
-//           startTime.setDate(startTime.getDate() + 1);
-//         }
+        if (text.includes("tomorrow")) {
+          startTime.setDate(startTime.getDate() + 1);
+        }
 
-//         const dateMatch = text.match(/(\d{1,2})(?:st|nd|rd|th)?\s(of\s)?(\w{3,9})(,\s(\d{4}))?/);
-//         if (dateMatch) {
-//           const [_, day, , month, , year = new Date().getFullYear()] = dateMatch;
-//           startTime = new Date(`${month} ${day}, ${year}`);
-//         }
+        const dateMatch = text.match(/(\d{1,2})(?:st|nd|rd|th)?\s(of\s)?(\w{3,9})(,\s(\d{4}))?/);
+        if (dateMatch) {
+          const [_, day, , month, , year = new Date().getFullYear()] = dateMatch;
+          startTime = new Date(`${month} ${day}, ${year}`);
+        }
 
-//         const timeMatch = text.match(/(\d{1,2})(:\d{2})?\s?(am|pm|a\.m\.\|p\.m\.)?/i);
-//         if (!timeMatch) {
-//           console.log("No valid time found in the text. Please specify a time.");
-//           input.current.value = ""; // Clear the input field
-//           return;
-//         }
+        const timeMatch = text.match(/(\d{1,2})(:\d{2})?\s?(am|pm|a\.m\.\|p\.m\.)?/i);
+        if (!timeMatch) {
+          console.log("No valid time found in the text. Please specify a time.");
+          input.current.value = ""; // Clear the input field
+          return;
+        }
 
-//         let [_, hours, minutes = ":00", period] = timeMatch;
-//         let parsedHours = parseInt(hours, 10);
+        let [_, hours, minutes = ":00", period] = timeMatch;
+        let parsedHours = parseInt(hours, 10);
 
-//         if (period) {
-//           const normalizedPeriod = period.replace(/\./g, "").toLowerCase();
-//           if (normalizedPeriod === "pm" && parsedHours < 12) {
-//             parsedHours += 12;
-//           } else if (normalizedPeriod === "am" && parsedHours === 12) {
-//             parsedHours = 0;
-//           }
-//         }
+        if (period) {
+          const normalizedPeriod = period.replace(/\./g, "").toLowerCase();
+          if (normalizedPeriod === "pm" && parsedHours < 12) {
+            parsedHours += 12;
+          } else if (normalizedPeriod === "am" && parsedHours === 12) {
+            parsedHours = 0;
+          }
+        }
 
-//         startTime.setHours(parsedHours);
-//         startTime.setMinutes(parseInt(minutes.slice(1), 10));
-//         startTime.setSeconds(0);
+        startTime.setHours(parsedHours);
+        startTime.setMinutes(parseInt(minutes.slice(1), 10));
+        startTime.setSeconds(0);
 
-//         const endTime = new Date(startTime);
-//         endTime.setMinutes(startTime.getMinutes() + 15);
+        const endTime = new Date(startTime);
+        endTime.setMinutes(startTime.getMinutes() + 15);
 
-//         const eventData = {
-//           subject: "Reminder from Donna",
-//           start: startTime.toISOString(),
-//           end: endTime.toISOString(),
-//           timeZone: "Eastern Standard Time",
-//         };
+        const eventData = {
+          subject: "Reminder from Donna",
+          start: startTime.toISOString(),
+          end: endTime.toISOString(),
+          timeZone: "Eastern Standard Time",
+        };
 
-//         const response = await fetch("https://donna-backend.onrender.com/createEvent", {
-//           method: "POST",
-//           headers: { "Content-Type": "application/json" },
-//           body: JSON.stringify(eventData),
-//         });
+        const response = await fetch("https://donna-backend.onrender.com/createEvent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(eventData),
+        });
 
-//         const result = await response.json();
-//         if (result.message === "Event created successfully!") {
-//           chat("Please say that reminder is added successfully.");
-//         } else {
-//           console.log("Sorry, there was an issue setting up the reminder. Please try again.");
-//         }
-//         input.current.value = ""; // Clear the input field
-//         return;
-//       }
+        const result = await response.json();
+        if (result.message === "Event created successfully!") {
+          chat("Please say that reminder is added successfully.");
+        } else {
+          console.log("Sorry, there was an issue setting up the reminder. Please try again.");
+        }
+        input.current.value = ""; // Clear the input field
+        return;
+      }
 
-//       if (text.includes("send an email")) {
-//         const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
-//         if (!emailMatch) {
-//           console.log("No valid email address found in the text.");
-//           input.current.value = ""; // Clear the input field
-//           return;
-//         }
+      if (text.includes("send an email")) {
+        const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
+        if (!emailMatch) {
+          console.log("No valid email address found in the text.");
+          input.current.value = ""; // Clear the input field
+          return;
+        }
 
-//         const recipientEmail = emailMatch[0];
-//         const bodyMatch = text.match(/(?:body|message)\s*[:\s]*(.*)/i);
-//         const emailBody = bodyMatch ? bodyMatch[1].trim() : "Email from Donna";
+        const recipientEmail = emailMatch[0];
+        const bodyMatch = text.match(/(?:body|message)\s*[:\s]*(.*)/i);
+        const emailBody = bodyMatch ? bodyMatch[1].trim() : "Email from Donna";
 
-//         const emailData = {
-//           recipient: recipientEmail,
-//           subject: "Email from Donna",
-//           body: emailBody,
-//         };
+        const emailData = {
+          recipient: recipientEmail,
+          subject: "Email from Donna",
+          body: emailBody,
+        };
 
-//         const response = await fetch("https://donna-backend.onrender.com/sendEmail", {
-//           method: "POST",
-//           headers: { "Content-Type": "application/json" },
-//           body: JSON.stringify(emailData),
-//         });
+        const response = await fetch("https://donna-backend.onrender.com/sendEmail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(emailData),
+        });
 
-//         const result = await response.json();
-//         if (result.message === "Email sent successfully!") {
-//           chat("Please say that Email has been sent successfully.");
-//         } else {
-//           console.log("Sorry, there was an issue sending your email. Please try again.");
-//         }
-//         input.current.value = ""; // Clear the input field
-//         return;
-//       }
+        const result = await response.json();
+        if (result.message === "Email sent successfully!") {
+          chat("Please say that Email has been sent successfully.");
+        } else {
+          console.log("Sorry, there was an issue sending your email. Please try again.");
+        }
+        input.current.value = ""; // Clear the input field
+        return;
+      }
 
-//       const containsNoteKeyword = noteKeywords.some((keyword) => text.includes(keyword));
-//       const containsKBKeyword = kbKeywords.some((keyword) => text.includes(keyword));
-//       setEnableFileOptions(containsNoteKeyword);
-//       if (containsNoteKeyword) {
-//         chat("Please say that upload your files using the Choose file button.");
-//         input.current.value = ""; // Clear the input field
-//         return;
-//       }
+      const containsNoteKeyword = noteKeywords.some((keyword) => text.includes(keyword));
+      const containsKBKeyword = kbKeywords.some((keyword) => text.includes(keyword));
+      setEnableFileOptions(containsNoteKeyword);
+      if (containsNoteKeyword) {
+        chat("Please say that upload your files using the Choose file button.");
+        input.current.value = ""; // Clear the input field
+        return;
+      }
 
-//       if (containsKBKeyword) {
-//         const response = await fetch("https://donna-backend.onrender.com/rag", {
-//           method: "POST",
-//           headers: { "Content-Type": "application/json" },
-//           body: JSON.stringify({ message: input.current.value }),
-//         });
+      if (containsKBKeyword) {
+        const response = await fetch("https://donna-backend.onrender.com/rag", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: input.current.value }),
+        });
 
-//         const data = await response.text();
-//         const responseMessage = `Please say this content: ${data}`;
-//         chat(responseMessage);
-//         input.current.value = ""; // Clear the input field
-//         return;
-//       }
+        const data = await response.text();
+        const responseMessage = `Please say this content: ${data}`;
+        chat(responseMessage);
+        input.current.value = ""; // Clear the input field
+        return;
+      }
 
-//       chat(text); // Fallback if no conditions match
-//       console.log(text);
-//       input.current.value = ""; // Clear the input field
-//     } catch (error) {
-//       console.error("Error processing message:", error);
-//       input.current.value = ""; // Clear the input field
-//     }
-//   }
-// };
+      chat(text); // Fallback if no conditions match
+      console.log(text);
+      input.current.value = ""; // Clear the input field
+    } catch (error) {
+      console.error("Error processing message:", error);
+      input.current.value = ""; // Clear the input field
+    }
+  }
+};
 
-// uptill here only
+//uptill here only
 //let isNoting = false;
 //let noteContent = ""; 
 
